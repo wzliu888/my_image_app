@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>File(s) size</title>
+</head>
+
+<body>
+
+
+<input type="file" id="upload">
+<select id="blur">
+    <option value ="0">0%</option>
+    <option value ="2">2%</option>
+    <option value ="4">4%</option>
+    <option value ="6">6%</option>
+    <option value ="8" selected>8%</option>
+    <option value ="10">10%</option>
+    <option value ="12">12%</option>
+    <option value ="15">15%</option>
+    <option value ="18">18%</option>
+    <option value ="20">20%</option>
+    <option value="30">30%</option>
+    <option value="40">40%</option>
+</select>
+
+
+<div>
+    <input type="checkbox" id="matting" name="matting" value="1">
+    <label for="matting">抠像（仅保留人像）</label>
+</div>
+
+<div>
+    <input type="checkbox" id="tracing" name="tracing" value="1" >
+    <label for="tracing">描边（轮廓添加黑色像素）</label>
+</div>
+
+<div>
+    <input type="checkbox" id="padding" name="padding" value="1" >
+    <label for="padding">留白（添加白色边框）</label>
+</div>
+
+
+
+<button id="btn">Generate your pic</button>
+<div >
+    <img id="new_image" class="responsive" hidden="true"  />
+</div>
+
+<style>
+    .responsive {
+        width: 100%;
+        height: auto;
+    }
+</style>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script>
+    $("#btn").on("click", function()
+    {
+        var inputs = new FormData();
+        inputs.append("upload", $("#upload")[0].files[0]);
+        inputs.append("blur", $("#blur").val());
+        if (document.getElementById("matting").checked) {
+            inputs.append("matting", $("#matting").val());
+        }
+        if (document.getElementById("tracing").checked) {
+             inputs.append("tracing", $("#tracing").val());
+        }
+        if (document.getElementById("padding").checked) {
+            inputs.append("padding", $("#padding").val());
+        }
+
+        $.ajax
+        ({
+            url:"/post",
+            type:"POST",
+            data: inputs,
+            cache: false, // don't cache the image
+            processData: false, // Don't process the files
+            contentType: false,
+            dataType:"json",
+            success: function(data)
+            {
+                document.getElementById("new_image").hidden=false
+                document.getElementById("new_image").src="data:image/png;base64,"+data['new_image']
+            }
+        });
+    });
+
+
+
+</script>
+
+</body>
+</html>
