@@ -21,7 +21,7 @@ const threshold = 80
 const Athreshold = 250
 
 func RetHomePage(c *gin.Context) {
-	c.HTML(http.StatusOK, "index.tmpl.html.html", gin.H{
+	c.HTML(http.StatusOK, "index.tmpl.html", gin.H{
 		"title": "Main website",
 	})
 }
