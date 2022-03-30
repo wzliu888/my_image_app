@@ -1,1 +1,1 @@
-web: bin/go-getting-started
+web: bin/my_image_app
