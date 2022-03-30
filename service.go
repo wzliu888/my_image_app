@@ -15,14 +15,21 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strconv"
+	"sync/atomic"
+	"time"
 )
 
 const threshold = 80
 const Athreshold = 250
 
+var counter int32 = 0
+
+
 func RetHomePage(c *gin.Context) {
+	atomic.AddInt32(&counter, 1)
 	c.HTML(http.StatusOK, "index.tmpl.html", gin.H{
-		"title": "Main website",
+		"title": "像素风照片生成器",
+		"counter": counter,
 	})
 }
 
@@ -30,37 +37,61 @@ func RetImage(c *gin.Context) {
 
 	blur, _ := strconv.Atoi(c.Request.FormValue("blur"))
 
-	f, _, _ := c.Request.FormFile("upload")
-	fileBytes, _ := ioutil.ReadAll(f)
+	f, _, err := c.Request.FormFile("upload")
+	if err != nil || f == nil {
+		c.JSON(http.StatusOK,  map[string]interface{}{"err": err})
+		return
+	}
+
+	fileBytes, err := ioutil.ReadAll(f)
+	if err != nil {
+		c.JSON(http.StatusOK,  map[string]interface{}{"err": err})
+		return
+	}
 
 	if blur == 0 {
 		c.JSON(http.StatusOK, map[string]interface{}{"new_image": fileBytes})
 		return
 	}
 
+	t1 := time.Now()
 	responseImg := fileBytes
 	mat, _ := strconv.Atoi(c.Request.FormValue("matting"))
 	if mat == 1 {
 		mattingStr := matting(fileBytes)
 		responseImg, _ = base64.StdEncoding.DecodeString(mattingStr)
 	}
+	fmt.Printf("mat:%+v\n", time.Now().Sub(t1).Seconds())
+
 
 	reader := bytes.NewReader(responseImg)
 	srcImg, _, _ := image.Decode(reader)
 
+	t1 = time.Now()
 	retBytes := mosaic(srcImg, blur)
+	fmt.Printf("moasic:%+v\n", time.Now().Sub(t1).Seconds())
 
+
+	t1 = time.Now()
 	tracing, _ := strconv.Atoi(c.Request.FormValue("tracing"))
 	if tracing == 1 {
 		retBytes = trace(retBytes, blur)
 	}
+	fmt.Printf("trace:%+v\n", time.Now().Sub(t1).Seconds())
 
+
+	t1 = time.Now()
 	retBytes = trim(retBytes)
+	fmt.Printf("trim:%+v\n", time.Now().Sub(t1).Seconds())
 
+
+	t1 = time.Now()
 	pad, _ := strconv.Atoi(c.Request.FormValue("padding"))
 	if pad == 1 {
 		retBytes = padding(retBytes)
 	}
+	fmt.Printf("pad:%+v\n", time.Now().Sub(t1).Seconds())
+
 
 	c.JSON(http.StatusOK, map[string]interface{}{"new_image": retBytes})
 
