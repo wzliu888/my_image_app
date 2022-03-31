@@ -12,7 +12,10 @@
 
 
 <div class="popup">
-    <img src="/static/show.jpeg">
+    <img src="/static/show1.jpeg">
+    <img src="/static/show2.jpeg">
+    <img src="/static/show3.jpeg">
+    <img src="/static/show4.jpeg">
 </div>
 
 <div class="show">
@@ -28,37 +31,33 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
 
-<div class="container">
-    <div class="vertical-center">
-        <p>Stage one: choose a photo</p>
+<div class="margin-left">
+        <p>Step one: choose a photo</p>
         <input type="file" id="upload">
-    </div>
 </div>
 
 
 
 
 
-<div class="container">
+<div class="margin-left">
 
-    <div class="vertical-center">
-        <p>Stage two: do some customized settings</p>
-        <div>
-            <select class="form-select form-select-lg mb-3" aria-label="Default select example" id="blur">
-                <option value ="0">0%</option>
-                <option value ="2">2%</option>
-                <option value ="4">4%</option>
-                <option value ="6">6%</option>
-                <option value ="8" selected>8%</option>
-                <option value ="10">10%</option>
-                <option value ="12">12%</option>
-                <option value ="15">15%</option>
-                <option value ="18">18%</option>
-                <option value ="20">20%</option>
-                <option value="30">30%</option>
-                <option value="40">40%</option>
-            </select>
-        </div>
+        <p>Step two: do some customized settings</p>
+            <label for="blur" >像素化百分比</label>
+            <select class="form-select form-select-lg mb-3 " style="width: 90%" aria-label="Default select example" id="blur">
+                    <option value ="0">0%</option>
+                    <option value ="2">2%</option>
+                    <option value ="4">4%</option>
+                    <option value ="6">6%</option>
+                    <option value ="8" selected>8%</option>
+                    <option value ="10">10%</option>
+                    <option value ="12">12%</option>
+                    <option value ="15">15%</option>
+                    <option value ="18">18%</option>
+                    <option value ="20">20%</option>
+                    <option value="30">30%</option>
+                    <option value="40">40%</option>
+                </select>
 
         <div >
             <input type="checkbox" id="matting" name="matting" value="1">
@@ -74,15 +73,12 @@
             <input type="checkbox" id="padding" name="padding" value="1" >
             <label for="padding">留白（添加白色边框）</label>
         </div>
-    </div>
-
 </div>
 
-
-
-<div class="container">
-        <button type="button" id="btn" class="btn btn-primary btn-lg btn-block vertical-center">Final step: Generate your pic</button>
+<div class="wrapper">
+    <button type="button" id="btn" class="btn btn-primary btn-lg btn-block button-block">Final step: Generate your pic.</button>
 </div>
+
 
 <div class="left">
     <p > You are #{{.counter}} visitor</p>
@@ -91,19 +87,31 @@
 
 
 
-<div class="container-large">
-<div >
-    <img id="new_image" class="responsive" hidden="true"  />
-    <div id="loader" class="loader vertical-center" hidden="true"></div>
+<div class="wrapper">
+    <div id="loader" class="loader" hidden="true"></div>
 </div>
+<div class="wrapper" id="new_img_div">
+    <img id="new_image" class="responsive box" hidden="true"  />
 </div>
 
 
 <style>
+    .wrapper {
+        display: flex;
+        justify-content: center;
+    }
+
     .responsive {
         width: 85%;
         height: auto;
+        border: 2px;
     }
+
+    .margin-left {
+        margin-top: 50px;
+        margin-left: 50px;
+    }
+
 
     .left {
         text-align: right;
@@ -111,23 +119,15 @@
 
     }
 
-    .container {
-        height: 160px;
-        position: relative;
-    }
-
-
-    .container-large {
-        height: 360px;
-        position: relative;
-    }
-
-    .vertical-center {
-        margin: 0;
-        position: absolute;
-        top: 50%;
-        -ms-transform: translateY(-50%);
-        transform: translateY(-50%);
+    .button-block {
+        display: block;
+        width: 80%;
+        border: none;
+        padding: 14px 28px;
+        font-size: 16px;
+        cursor: pointer;
+        text-align: center;
+        margin: 50px;
     }
 
     .popup{
@@ -187,10 +187,34 @@
         animation: spin 2s linear infinite;
     }
 
+    .box {
+        display: inline-block;
+        padding: 10px;
+        position: relative;
+    }
+    .box::before {
+        content: '';
+        position: absolute;
+        left: 0; top: 0; right: 0; bottom: 0;
+        border: 2px solid #cd0000;
+        animation: borderAround 1.5s infinite linear;
+    }
+    @keyframes borderAround {
+        0%, 100% { clip: rect(0 148px 2px 0); }
+        25% { clip: rect(0 148px 116px 146px); }
+        50% { clip: rect(114px 148px 116px 0); }
+        75% { clip: rect(0 2px 116px 0); }
+    }
+
+
+
+
     @keyframes spin {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
     }
+
+
 
     h1 {text-align: center; padding: 50px}
 </style>
@@ -233,6 +257,7 @@
                 document.getElementById("new_image").src="data:image/png;base64,"+data['new_image']
                 $("#btn").attr("disabled", false);
                 document.getElementById("loader").hidden=true
+                window.scrollTo(0, document.getElementById("new_img_div").scrollHeight);
             }
         });
 
